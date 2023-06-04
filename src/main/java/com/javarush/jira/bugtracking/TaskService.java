@@ -12,7 +12,6 @@ import com.javarush.jira.login.internal.UserRepository;
 import jakarta.validation.constraints.Size;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +20,7 @@ public class TaskService extends BugtrackingService<Task, TaskTo, TaskRepository
 
     private final UserRepository userRepository;
     private final UserBelongRepository userBelongRepository;
+
     public TaskService(TaskRepository repository, TaskMapper mapper, UserRepository userRepository, UserBelongRepository userBelongRepository) {
         super(repository, mapper);
         this.userRepository = userRepository;
@@ -31,24 +31,24 @@ public class TaskService extends BugtrackingService<Task, TaskTo, TaskRepository
         return mapper.toToList(repository.getAll());
     }
 
-    public void addTagsToTask(Long id, Set<@Size(min = 2, max = 32) String> tags){
+    public void addTagsToTask(Long id, Set<@Size(min = 2, max = 32) String> tags) {
         Task task = repository.getExisted(id);
         task.getTags().addAll(tags);
         repository.save(task);
     }
 
-    public void addTaskToUser (Long userId, Long taskId){
+    public void addTaskToUser(Long userId, Long taskId) {
         User user = userRepository.getExisted(userId);
-        Task task = repository.getExisted(taskId);
         UserBelong userBelong = new UserBelong();
 
-        userBelong.setUserId(userId);
-        userBelong.setObjectId(taskId);
-        userBelong.setObjectType(ObjectType.TASK);
-        if (!user.getRoles().isEmpty()) {
-            userBelong.setUserTypeCode(user.getRoles().stream().findAny().get().name());
+        if (!userBelong.getUserId().equals(userId)) {
+            userBelong.setUserId(userId);
+            userBelong.setObjectId(taskId);
+            userBelong.setObjectType(ObjectType.TASK);
+            if (!user.getRoles().isEmpty()) {
+                userBelong.setUserTypeCode(user.getRoles().stream().findAny().get().name());
+            }
         }
-
         userBelongRepository.save(userBelong);
 
     }
