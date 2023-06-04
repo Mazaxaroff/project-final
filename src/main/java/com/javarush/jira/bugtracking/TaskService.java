@@ -9,11 +9,9 @@ import com.javarush.jira.bugtracking.to.ObjectType;
 import com.javarush.jira.bugtracking.to.TaskTo;
 import com.javarush.jira.login.User;
 import com.javarush.jira.login.internal.UserRepository;
-import jakarta.validation.constraints.Size;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class TaskService extends BugtrackingService<Task, TaskTo, TaskRepository> {
@@ -31,10 +29,19 @@ public class TaskService extends BugtrackingService<Task, TaskTo, TaskRepository
         return mapper.toToList(repository.getAll());
     }
 
-    public void addTagsToTask(Long id, Set<@Size(min = 2, max = 32) String> tags) {
-        Task task = repository.getExisted(id);
-        task.getTags().addAll(tags);
+    public void addTagToTask(Long taskId, String tag) {
+        Task task = repository.getExisted(taskId);
+        task.getTags().add(tag);
         repository.save(task);
+    }
+
+    public void deleteTagFromTask(Long taskId, String tag){
+        Task task = repository.getExisted(taskId);
+        if(task.getTags().contains(tag)){
+            task.getTags().remove(tag);
+        }
+        repository.save(task);
+
     }
 
     public void addTaskToUser(Long userId, Long taskId) {
@@ -50,6 +57,5 @@ public class TaskService extends BugtrackingService<Task, TaskTo, TaskRepository
             }
         }
         userBelongRepository.save(userBelong);
-
     }
 }
